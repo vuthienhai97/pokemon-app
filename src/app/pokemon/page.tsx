@@ -16,7 +16,10 @@ export default function PokemonCSRPage() {
   const [, startTransition] = useTransition()
 
   const selectedTypes = searchParams.getAll('types')
-  const currentPage = Math.max(1, parseInt(searchParams.get('page') ?? '1') || 1)
+  const currentPage = Math.max(
+    1,
+    parseInt(searchParams.get('page') ?? '1') || 1
+  )
 
   const [allTypes, setAllTypes] = useState<TypeInfo[]>([])
   const [pokemon, setPokemon] = useState<Pokemon[]>([])
@@ -28,14 +31,33 @@ export default function PokemonCSRPage() {
   }, [])
 
   useEffect(() => {
-    setLoading(true)
-    fetchPokemonPage(selectedTypes, currentPage)
-      .then(({ pokemon: data, total: count }) => {
-        setPokemon(data)
-        setTotal(count)
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false))
+    let ignore = false
+
+    async function load() {
+      setLoading(true)
+
+      try {
+        const { pokemon: data, total: count } = await fetchPokemonPage(
+          selectedTypes,
+          currentPage
+        )
+
+        if (!ignore) {
+          setPokemon(data)
+          setTotal(count)
+        }
+      } catch (e) {
+        console.error(e)
+      } finally {
+        if (!ignore) setLoading(false)
+      }
+    }
+
+    load()
+
+    return () => {
+      ignore = true
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams.toString()])
 
@@ -44,7 +66,9 @@ export default function PokemonCSRPage() {
       const params = new URLSearchParams()
       types.forEach((t) => params.append('types', t))
       startTransition(() => {
-        router.push(`/pokemon${params.toString() ? `?${params.toString()}` : ''}`)
+        router.push(
+          `/pokemon${params.toString() ? `?${params.toString()}` : ''}`
+        )
       })
     },
     [router]
@@ -57,12 +81,37 @@ export default function PokemonCSRPage() {
       <header className="bg-red-600 shadow-md sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <svg viewBox="0 0 100 100" className="w-9 h-9 shrink-0" aria-hidden="true">
-              <circle cx="50" cy="50" r="48" fill="white" stroke="#1f2937" strokeWidth="4" />
+            <svg
+              viewBox="0 0 100 100"
+              className="w-9 h-9 shrink-0"
+              aria-hidden="true"
+            >
+              <circle
+                cx="50"
+                cy="50"
+                r="48"
+                fill="white"
+                stroke="#1f2937"
+                strokeWidth="4"
+              />
               <path d="M2 50 h96" stroke="#1f2937" strokeWidth="4" />
-              <circle cx="50" cy="50" r="14" fill="white" stroke="#1f2937" strokeWidth="4" />
+              <circle
+                cx="50"
+                cy="50"
+                r="14"
+                fill="white"
+                stroke="#1f2937"
+                strokeWidth="4"
+              />
               <path d="M2 50 Q50 2 98 50" fill="#e11d48" />
-              <circle cx="50" cy="50" r="8" fill="white" stroke="#1f2937" strokeWidth="4" />
+              <circle
+                cx="50"
+                cy="50"
+                r="8"
+                fill="white"
+                stroke="#1f2937"
+                strokeWidth="4"
+              />
             </svg>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
               Pokédex
@@ -70,7 +119,10 @@ export default function PokemonCSRPage() {
           </div>
           <nav className="flex gap-4 text-sm font-semibold">
             <span className="text-white underline underline-offset-2">CSR</span>
-            <Link href="/pokemon-ssr" className="text-red-200 hover:text-white transition-colors">
+            <Link
+              href="/pokemon-ssr"
+              className="text-red-200 hover:text-white transition-colors"
+            >
               SSR
             </Link>
           </nav>
@@ -94,17 +146,28 @@ export default function PokemonCSRPage() {
               {total.toLocaleString()} Pokémon
               {selectedTypes.length > 0 && (
                 <span className="ml-1">
-                  matching <strong className="text-gray-600">{selectedTypes.join(' + ')}</strong>
+                  matching{' '}
+                  <strong className="text-gray-600">
+                    {selectedTypes.join(' + ')}
+                  </strong>
                 </span>
               )}
             </>
           )}
         </p>
 
-        {loading ? <PokemonGridSkeleton /> : <PokemonGrid pokemon={pokemon} animated />}
+        {loading ? (
+          <PokemonGridSkeleton />
+        ) : (
+          <PokemonGrid pokemon={pokemon} animated />
+        )}
 
         {!loading && (
-          <Pagination currentPage={currentPage} totalPages={totalPages} basePath="/pokemon" />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            basePath="/pokemon"
+          />
         )}
       </main>
 

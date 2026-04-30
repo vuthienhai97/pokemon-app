@@ -3,7 +3,7 @@ import PokemonCard from './PokemonCard'
 
 export default function PokemonGrid({
   pokemon,
-  animated = false,
+  animated = false
 }: {
   pokemon: Pokemon[]
   animated?: boolean
@@ -17,7 +17,9 @@ export default function PokemonGrid({
             <div className="w-8 h-8 rounded-full border-4 border-gray-300 bg-white" />
           </div>
         </div>
-        <h3 className="text-xl font-bold text-gray-600 mb-2">No Pokémon Found</h3>
+        <h3 className="text-xl font-bold text-gray-600 mb-2">
+          No Pokémon Found
+        </h3>
         <p className="text-gray-400 max-w-xs text-sm">
           No Pokémon match the selected type combination. Try different filters.
         </p>

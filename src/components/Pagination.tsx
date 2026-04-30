@@ -13,7 +13,7 @@ interface PaginationProps {
 export default function Pagination({
   currentPage,
   totalPages,
-  basePath,
+  basePath
 }: PaginationProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -28,9 +28,7 @@ export default function Pagination({
         params.set('page', String(page))
       }
       const qs = params.toString()
-      const dest = basePath
-        ? `${basePath}${qs ? `?${qs}` : ''}`
-        : `?${qs}`
+      const dest = basePath ? `${basePath}${qs ? `?${qs}` : ''}` : `?${qs}`
       startTransition(() => {
         router.push(dest)
       })

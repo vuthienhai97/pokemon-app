@@ -10,7 +10,10 @@ interface TypeFilterSSRProps {
   selectedTypes: string[]
 }
 
-export default function TypeFilterSSR({ allTypes, selectedTypes }: TypeFilterSSRProps) {
+export default function TypeFilterSSR({
+  allTypes,
+  selectedTypes
+}: TypeFilterSSRProps) {
   const router = useRouter()
   const [, startTransition] = useTransition()
 
@@ -19,7 +22,9 @@ export default function TypeFilterSSR({ allTypes, selectedTypes }: TypeFilterSSR
       const params = new URLSearchParams()
       types.forEach((t) => params.append('types', t))
       startTransition(() => {
-        router.push(`/pokemon-ssr${params.toString() ? `?${params.toString()}` : ''}`)
+        router.push(
+          `/pokemon-ssr${params.toString() ? `?${params.toString()}` : ''}`
+        )
       })
     },
     [router]

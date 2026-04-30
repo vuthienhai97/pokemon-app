@@ -13,7 +13,7 @@ interface TypeAutocompleteProps {
 export default function TypeAutocomplete({
   allTypes,
   selectedTypes,
-  onChange,
+  onChange
 }: TypeAutocompleteProps) {
   const [query, setQuery] = useState('')
   const [isOpen, setIsOpen] = useState(false)
@@ -60,7 +60,10 @@ export default function TypeAutocomplete({
 
   useEffect(() => {
     function onMouseDown(e: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
         setIsOpen(false)
         setIsFocused(false)
         setQuery('')
@@ -80,9 +83,10 @@ export default function TypeAutocomplete({
           relative flex flex-wrap items-center gap-1.5
           min-h-14 px-3 pt-2.5 pb-2 pr-20
           bg-white rounded cursor-text transition-all
-          ${isFocused
-            ? 'ring-2 ring-red-500'
-            : 'ring-1 ring-gray-400 hover:ring-gray-900'
+          ${
+            isFocused
+              ? 'ring-2 ring-red-500'
+              : 'ring-1 ring-gray-400 hover:ring-gray-900'
           }
         `}
         onClick={() => {
@@ -95,9 +99,10 @@ export default function TypeAutocomplete({
           id={labelId}
           className={`
             absolute left-3 pointer-events-none select-none transition-all duration-150
-            ${hasValue || isFocused
-              ? '-top-2.5 text-xs px-1 bg-white leading-none'
-              : 'top-1/2 -translate-y-1/2 text-base'
+            ${
+              hasValue || isFocused
+                ? '-top-2.5 text-xs px-1 bg-white leading-none'
+                : 'top-1/2 -translate-y-1/2 text-base'
             }
             ${isFocused ? 'text-red-500' : 'text-gray-500'}
           `}
@@ -194,7 +199,7 @@ export default function TypeAutocomplete({
           className="absolute z-50 w-full mt-0.5 bg-white rounded py-1 overflow-y-auto max-h-64"
           style={{
             boxShadow:
-              '0px 5px 5px -3px rgba(0,0,0,0.2), 0px 8px 10px 1px rgba(0,0,0,0.14), 0px 3px 14px 2px rgba(0,0,0,0.12)',
+              '0px 5px 5px -3px rgba(0,0,0,0.2), 0px 8px 10px 1px rgba(0,0,0,0.14), 0px 3px 14px 2px rgba(0,0,0,0.12)'
           }}
         >
           {options.length === 0 ? (
@@ -220,13 +225,18 @@ export default function TypeAutocomplete({
                     {/* Checkmark slot */}
                     <span className="w-5 h-5 shrink-0 flex items-center justify-center text-red-500">
                       {isSelected && (
-                        <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
+                        <svg
+                          viewBox="0 0 24 24"
+                          className="w-4 h-4 fill-current"
+                        >
                           <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
                         </svg>
                       )}
                     </span>
                     {/* Type color indicator */}
-                    <span className={`${getTypeClass(type.name)} w-3.5 h-3.5 rounded-full shrink-0`} />
+                    <span
+                      className={`${getTypeClass(type.name)} w-3.5 h-3.5 rounded-full shrink-0`}
+                    />
                     {/* Label */}
                     <span className="text-gray-800">{type.name}</span>
                   </button>

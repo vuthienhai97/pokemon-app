@@ -7,7 +7,10 @@ interface PokemonCardProps {
   animated?: boolean
 }
 
-export default function PokemonCard({ pokemon, animated = false }: PokemonCardProps) {
+export default function PokemonCard({
+  pokemon,
+  animated = false
+}: PokemonCardProps) {
   const showdownUrl = pokemon.sprites.other.showdown.front_default
   const staticUrl = pokemon.sprites.other['official-artwork'].front_default
   const paddedId = String(pokemon.id).padStart(3, '0')
