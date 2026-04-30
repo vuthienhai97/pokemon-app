@@ -24,9 +24,7 @@ export default function PokemonCard({ pokemon, animated = false }: PokemonCardPr
           <img
             src={showdownUrl}
             alt={pokemon.name}
-            width={120}
-            height={120}
-            className="object-contain group-hover:scale-110 transition-transform duration-300 drop-shadow-md"
+            className="w-30 h-30 object-contain group-hover:scale-110 transition-transform duration-300 drop-shadow-md"
           />
         ) : staticUrl ? (
           <Image
