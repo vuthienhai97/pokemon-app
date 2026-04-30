@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(echo \"Started dev server PID: $!\")",
+      "Read(//private/tmp/**)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/)",
+      "Bash(curl -s \"http://localhost:3000/?types=fire\" -o /dev/null -w \"%{http_code}\")",
+      "Bash(curl -s \"http://localhost:3000/?types=fire&types=water\" -o /dev/null -w \"%{http_code}\")",
+      "Bash(curl -s \"http://localhost:3000/?page=2\" -o /dev/null -w \"%{http_code}\")",
+      "Bash(npx tsc *)",
+      "Bash(curl -s http://localhost:3000/)",
+      "Bash(python3 -c \"import sys; html=sys.stdin.read\\(\\); import re; print\\('\\\\n'.join\\(re.findall\\(r'#\\\\d{3}', html\\)[:15]\\)\\)\")",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/pokemon)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/pokemon-ssr)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:3000/pokemon-ssr?types=fire&types=flying\")",
+      "Bash(curl -s http://localhost:3000/pokemon-ssr)"
+    ]
+  }
+}

@@ -6,9 +6,15 @@ import { useCallback, useTransition } from 'react'
 interface PaginationProps {
   currentPage: number
   totalPages: number
+  /** Base path to push on page change, e.g. "/pokemon" or "/pokemon-ssr" */
+  basePath?: string
 }
 
-export default function Pagination({ currentPage, totalPages }: PaginationProps) {
+export default function Pagination({
+  currentPage,
+  totalPages,
+  basePath,
+}: PaginationProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isPending, startTransition] = useTransition()
@@ -21,11 +27,15 @@ export default function Pagination({ currentPage, totalPages }: PaginationProps)
       } else {
         params.set('page', String(page))
       }
+      const qs = params.toString()
+      const dest = basePath
+        ? `${basePath}${qs ? `?${qs}` : ''}`
+        : `?${qs}`
       startTransition(() => {
-        router.push(`?${params.toString()}`)
+        router.push(dest)
       })
     },
-    [router, searchParams]
+    [router, searchParams, basePath]
   )
 
   if (totalPages <= 1) return null
