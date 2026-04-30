@@ -2,8 +2,17 @@ import Image from 'next/image'
 import { Pokemon } from '@/lib/pokemon'
 import { getTypeClass } from '@/lib/typeColors'
 
-export default function PokemonCard({ pokemon }: { pokemon: Pokemon }) {
-  const imageUrl = pokemon.sprites.other['official-artwork'].front_default
+interface PokemonCardProps {
+  pokemon: Pokemon
+  animated?: boolean
+}
+
+export default function PokemonCard({ pokemon, animated = false }: PokemonCardProps) {
+  const animatedUrl = pokemon.sprites.versions['generation-v']['black-white'].animated.front_default
+  const staticUrl = pokemon.sprites.other['official-artwork'].front_default
+
+  // Use animated GIF when requested and available, fall back to official artwork
+  const imageUrl = animated && animatedUrl ? animatedUrl : staticUrl
   const paddedId = String(pokemon.id).padStart(3, '0')
 
   return (
@@ -12,16 +21,29 @@ export default function PokemonCard({ pokemon }: { pokemon: Pokemon }) {
         <span className="absolute top-2 right-3 text-xs font-semibold text-gray-400">
           #{paddedId}
         </span>
+
         {imageUrl ? (
-          <Image
-            src={imageUrl}
-            alt={pokemon.name}
-            width={110}
-            height={110}
-            className="object-contain group-hover:scale-110 transition-transform duration-300 drop-shadow-md"
-          />
+          animated && animatedUrl ? (
+            // Use <img> for animated GIFs — next/image strips animation
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={animatedUrl}
+              alt={pokemon.name}
+              width={96}
+              height={96}
+              className="object-contain group-hover:scale-110 transition-transform duration-300 drop-shadow-md [image-rendering:pixelated]"
+            />
+          ) : (
+            <Image
+              src={staticUrl!}
+              alt={pokemon.name}
+              width={110}
+              height={110}
+              className="object-contain group-hover:scale-110 transition-transform duration-300 drop-shadow-md"
+            />
+          )
         ) : (
-          <div className="w-[110px] h-[110px] rounded-full bg-gray-200 flex items-center justify-center">
+          <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
             <span className="text-4xl text-gray-400">?</span>
           </div>
         )}

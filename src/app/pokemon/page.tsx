@@ -100,7 +100,7 @@ export default function PokemonCSRPage() {
           )}
         </p>
 
-        {loading ? <PokemonGridSkeleton /> : <PokemonGrid pokemon={pokemon} />}
+        {loading ? <PokemonGridSkeleton /> : <PokemonGrid pokemon={pokemon} animated />}
 
         {!loading && (
           <Pagination currentPage={currentPage} totalPages={totalPages} basePath="/pokemon" />

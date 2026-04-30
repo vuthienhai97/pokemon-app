@@ -1,7 +1,13 @@
 import { Pokemon } from '@/lib/pokemon'
 import PokemonCard from './PokemonCard'
 
-export default function PokemonGrid({ pokemon }: { pokemon: Pokemon[] }) {
+export default function PokemonGrid({
+  pokemon,
+  animated = false,
+}: {
+  pokemon: Pokemon[]
+  animated?: boolean
+}) {
   if (pokemon.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-28 text-center">
@@ -22,7 +28,7 @@ export default function PokemonGrid({ pokemon }: { pokemon: Pokemon[] }) {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
       {pokemon.map((p) => (
-        <PokemonCard key={p.id} pokemon={p} />
+        <PokemonCard key={p.id} pokemon={p} animated={animated} />
       ))}
     </div>
   )

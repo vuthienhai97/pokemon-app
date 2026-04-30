@@ -19,6 +19,13 @@ export interface Pokemon {
     other: {
       'official-artwork': { front_default: string | null }
     }
+    versions: {
+      'generation-v': {
+        'black-white': {
+          animated: { front_default: string | null }
+        }
+      }
+    }
   }
   types: PokemonTypeBadge[]
 }
