@@ -1,12 +1,11 @@
 import { Suspense } from 'react'
 import Link from 'next/link'
-import { fetchTypes, fetchPokemonPage, PER_PAGE } from '@/lib/pokemon'
+import type { SearchParams } from './types'
+import { PER_PAGE, fetchTypes, fetchPokemonPage } from './apis/pokemon-ssr.service'
+import TypeFilterSSR from './components/TypeFilterSSR'
 import PokemonGrid from '@/components/PokemonGrid'
 import PokemonGridSkeleton from '@/components/PokemonGridSkeleton'
 import Pagination from '@/components/Pagination'
-import TypeFilterSSR from '@/components/TypeFilterSSR'
-
-type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
 
 async function PokemonSection({ types, page }: { types: string[]; page: number }) {
   const { pokemon, total } = await fetchPokemonPage(types, page)
@@ -63,7 +62,7 @@ export default async function PokemonSSRPage({ searchParams }: { searchParams: S
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="relative mb-6">
-          <Suspense fallback={<div className="h-10 bg-gray-100 rounded-lg animate-pulse" />}>
+          <Suspense fallback={<div className="h-14 bg-gray-100 rounded animate-pulse" />}>
             <TypeFilterSSR allTypes={allTypes} selectedTypes={types} />
           </Suspense>
         </div>
@@ -75,7 +74,12 @@ export default async function PokemonSSRPage({ searchParams }: { searchParams: S
 
       <footer className="text-center py-6 text-xs text-gray-400">
         Data from{' '}
-        <a href="https://pokeapi.co" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600">
+        <a
+          href="https://pokeapi.co"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline hover:text-gray-600"
+        >
           PokéAPI
         </a>
       </footer>

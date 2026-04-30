@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback, useId } from 'react'
-import { TypeInfo } from '@/lib/pokemon'
+import { TypeInfo } from '@/lib/types'
 import { getTypeClass } from '@/lib/typeColors'
 
 interface TypeAutocompleteProps {

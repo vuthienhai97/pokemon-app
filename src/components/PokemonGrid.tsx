@@ -1,4 +1,4 @@
-import { Pokemon } from '@/lib/pokemon'
+import { Pokemon } from '@/lib/types'
 import PokemonCard from './PokemonCard'
 
 export default function PokemonGrid({

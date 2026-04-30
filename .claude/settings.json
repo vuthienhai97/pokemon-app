@@ -16,7 +16,9 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/pokemon)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/pokemon-ssr)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:3000/pokemon-ssr?types=fire&types=flying\")",
-      "Bash(curl -s http://localhost:3000/pokemon-ssr)"
+      "Bash(curl -s http://localhost:3000/pokemon-ssr)",
+      "Bash(curl -s http://localhost:3000/pokemon)",
+      "Bash(git commit -m 'fix: constrain animated GIF to w-30 h-30 to prevent aspect-ratio layout break *)"
     ]
   }
 }

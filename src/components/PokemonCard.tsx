@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { Pokemon } from '@/lib/pokemon'
+import { Pokemon } from '@/lib/types'
 import { getTypeClass } from '@/lib/typeColors'
 
 interface PokemonCardProps {

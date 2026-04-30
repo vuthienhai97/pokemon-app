@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback, useTransition } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { TypeInfo, Pokemon, PER_PAGE, fetchTypes, fetchPokemonPage } from '@/lib/pokemon'
+import type { TypeInfo, Pokemon } from './types'
+import { PER_PAGE, fetchTypes, fetchPokemonPage } from './apis/pokemon.service'
 import TypeAutocomplete from '@/components/TypeAutocomplete'
 import PokemonGrid from '@/components/PokemonGrid'
 import PokemonGridSkeleton from '@/components/PokemonGridSkeleton'
@@ -23,12 +24,12 @@ export default function PokemonCSRPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetchTypes({}).then(setAllTypes).catch(console.error)
+    fetchTypes().then(setAllTypes).catch(console.error)
   }, [])
 
   useEffect(() => {
     setLoading(true)
-    fetchPokemonPage(selectedTypes, currentPage, {})
+    fetchPokemonPage(selectedTypes, currentPage)
       .then(({ pokemon: data, total: count }) => {
         setPokemon(data)
         setTotal(count)
@@ -109,7 +110,12 @@ export default function PokemonCSRPage() {
 
       <footer className="text-center py-6 text-xs text-gray-400">
         Data from{' '}
-        <a href="https://pokeapi.co" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600">
+        <a
+          href="https://pokeapi.co"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline hover:text-gray-600"
+        >
           PokéAPI
         </a>
       </footer>

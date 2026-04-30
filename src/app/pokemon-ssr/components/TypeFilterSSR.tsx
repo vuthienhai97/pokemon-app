@@ -2,8 +2,8 @@
 
 import { useCallback, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { TypeInfo } from '@/lib/pokemon'
-import TypeAutocomplete from './TypeAutocomplete'
+import type { TypeInfo } from '../types'
+import TypeAutocomplete from '@/components/TypeAutocomplete'
 
 interface TypeFilterSSRProps {
   allTypes: TypeInfo[]
