@@ -7,35 +7,36 @@ export interface TypeInfo {
   url: string
 }
 
-/** Lightweight card data — no need to fetch individual pokemon detail endpoints */
-export interface PokemonEntry {
-  name: string
+export interface PokemonTypeBadge {
+  slot: number
+  type: { name: string; url: string }
+}
+
+export interface Pokemon {
   id: number
-  spriteUrl: string
+  name: string
+  sprites: {
+    other: {
+      'official-artwork': { front_default: string | null }
+    }
+  }
+  types: PokemonTypeBadge[]
 }
 
-// ─── Internal helpers ─────────────────────────────────────────────────────────
-
-function idFromUrl(url: string): number {
-  return parseInt(url.split('/').filter(Boolean).at(-1) ?? '0')
-}
-
-function spriteFromId(id: number): string {
-  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`
-}
+// ─── Internal raw shapes ──────────────────────────────────────────────────────
 
 interface RawListItem {
   name: string
   url: string
 }
 
-interface RawTypeDetail {
-  pokemon: Array<{ pokemon: RawListItem; slot: number }>
-}
-
 interface RawListResponse {
   count: number
   results: RawListItem[]
+}
+
+interface RawTypeDetail {
+  pokemon: Array<{ pokemon: RawListItem; slot: number }>
 }
 
 interface RawTypesResponse {
@@ -46,8 +47,8 @@ interface RawTypesResponse {
 
 /**
  * Fetch all available Pokémon types.
- * Pass `cacheOpts` to apply Next.js server-side caching when called from a
- * Server Component; the option is silently ignored in browser context.
+ * `cacheOpts` is applied as-is to fetch(); pass `{}` on the client side to skip
+ * the Next.js-specific `next.revalidate` option.
  */
 export async function fetchTypes(
   cacheOpts: RequestInit = { next: { revalidate: 86400 } }
@@ -59,15 +60,14 @@ export async function fetchTypes(
 }
 
 /**
- * Fetch a paginated list of Pokémon, optionally filtered by one or more types
- * (intersection — a Pokémon must belong to ALL selected types).
- * Works in both Server Components (pass cacheOpts) and Client Components.
+ * Fetch a paginated list of full Pokémon (with sprites + types).
+ * When `selectedTypes` is non-empty, returns the intersection across all types.
  */
-export async function fetchPokemonList(
+export async function fetchPokemonPage(
   selectedTypes: string[],
   page: number,
   cacheOpts: RequestInit = { next: { revalidate: 3600 } }
-): Promise<{ entries: PokemonEntry[]; total: number }> {
+): Promise<{ pokemon: Pokemon[]; total: number }> {
   if (selectedTypes.length === 0) {
     return fetchPage(page, cacheOpts)
   }
@@ -79,7 +79,7 @@ export async function fetchPokemonList(
 async function fetchPage(
   page: number,
   cacheOpts: RequestInit
-): Promise<{ entries: PokemonEntry[]; total: number }> {
+): Promise<{ pokemon: Pokemon[]; total: number }> {
   const offset = (page - 1) * PER_PAGE
   const res = await fetch(
     `https://pokeapi.co/api/v2/pokemon?limit=${PER_PAGE}&offset=${offset}`,
@@ -88,18 +88,17 @@ async function fetchPage(
   if (!res.ok) throw new Error('Failed to fetch pokemon list')
   const data = (await res.json()) as RawListResponse
 
-  const entries: PokemonEntry[] = data.results.map((p) => {
-    const id = idFromUrl(p.url)
-    return { name: p.name, id, spriteUrl: spriteFromId(id) }
-  })
-  return { entries, total: data.count }
+  const pokemon = await Promise.all(
+    data.results.map((p) => fetchDetail(p.name, cacheOpts))
+  )
+  return { pokemon, total: data.count }
 }
 
 async function fetchByTypes(
   types: string[],
   page: number,
   cacheOpts: RequestInit
-): Promise<{ entries: PokemonEntry[]; total: number }> {
+): Promise<{ pokemon: Pokemon[]; total: number }> {
   const responses = await Promise.all(
     types.map((t) =>
       fetch(`https://pokeapi.co/api/v2/type/${t}`, cacheOpts).then(
@@ -109,19 +108,21 @@ async function fetchByTypes(
   )
 
   const sets = responses.map((r) => new Set(r.pokemon.map((p) => p.pokemon.name)))
-  const allNames = [...sets[0]].filter((name) => sets.every((s) => s.has(name)))
+  const names = [...sets[0]].filter((name) => sets.every((s) => s.has(name)))
 
-  const total = allNames.length
+  const total = names.length
   const offset = (page - 1) * PER_PAGE
-  const page_names = allNames.slice(offset, offset + PER_PAGE)
+  const pageNames = names.slice(offset, offset + PER_PAGE)
 
-  // Build a url lookup from the first type response (all types share same pokemon urls)
-  const urlMap = new Map(responses[0].pokemon.map((p) => [p.pokemon.name, p.pokemon.url]))
+  const pokemon = await Promise.all(pageNames.map((n) => fetchDetail(n, cacheOpts)))
+  return { pokemon, total }
+}
 
-  const entries: PokemonEntry[] = page_names.map((name) => {
-    const id = idFromUrl(urlMap.get(name) ?? '')
-    return { name, id, spriteUrl: spriteFromId(id) }
-  })
-
-  return { entries, total }
+async function fetchDetail(nameOrId: string | number, cacheOpts: RequestInit): Promise<Pokemon> {
+  const res = await fetch(
+    `https://pokeapi.co/api/v2/pokemon/${nameOrId}`,
+    cacheOpts
+  )
+  if (!res.ok) throw new Error(`Failed to fetch pokemon: ${nameOrId}`)
+  return res.json() as Promise<Pokemon>
 }

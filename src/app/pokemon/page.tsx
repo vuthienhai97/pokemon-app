@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useCallback, useTransition } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { TypeInfo, PokemonEntry, PER_PAGE, fetchTypes, fetchPokemonList } from '@/lib/pokemon'
+import { TypeInfo, Pokemon, PER_PAGE, fetchTypes, fetchPokemonPage } from '@/lib/pokemon'
 import TypeAutocomplete from '@/components/TypeAutocomplete'
-import PokemonListGrid from '@/components/PokemonListGrid'
-import PokemonListSkeleton from '@/components/PokemonListSkeleton'
+import PokemonGrid from '@/components/PokemonGrid'
+import PokemonGridSkeleton from '@/components/PokemonGridSkeleton'
 import Pagination from '@/components/Pagination'
 import Link from 'next/link'
 
@@ -14,26 +14,23 @@ export default function PokemonCSRPage() {
   const searchParams = useSearchParams()
   const [, startTransition] = useTransition()
 
-  // Derive state from URL
-  const rawTypes = searchParams.getAll('types')
+  const selectedTypes = searchParams.getAll('types')
   const currentPage = Math.max(1, parseInt(searchParams.get('page') ?? '1') || 1)
 
   const [allTypes, setAllTypes] = useState<TypeInfo[]>([])
-  const [entries, setEntries] = useState<PokemonEntry[]>([])
+  const [pokemon, setPokemon] = useState<Pokemon[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
 
-  // Fetch types once on mount (client-side)
   useEffect(() => {
     fetchTypes({}).then(setAllTypes).catch(console.error)
   }, [])
 
-  // Fetch pokemon whenever types or page change (client-side)
   useEffect(() => {
     setLoading(true)
-    fetchPokemonList(rawTypes, currentPage, {})
-      .then(({ entries: data, total: count }) => {
-        setEntries(data)
+    fetchPokemonPage(selectedTypes, currentPage, {})
+      .then(({ pokemon: data, total: count }) => {
+        setPokemon(data)
         setTotal(count)
       })
       .catch(console.error)
@@ -46,7 +43,7 @@ export default function PokemonCSRPage() {
       const params = new URLSearchParams()
       types.forEach((t) => params.append('types', t))
       startTransition(() => {
-        router.push(`/pokemon?${params.toString()}`)
+        router.push(`/pokemon${params.toString() ? `?${params.toString()}` : ''}`)
       })
     },
     [router]
@@ -55,57 +52,67 @@ export default function PokemonCSRPage() {
   const totalPages = Math.ceil(total / PER_PAGE)
 
   return (
-    <div className="min-h-screen bg-white">
-      <header className="border-b border-gray-200 bg-white sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
-          <h1 className="text-xl font-bold text-gray-800">Welcome to Pokemon world</h1>
-          <nav className="flex gap-4 text-sm">
-            <span className="font-semibold text-gray-800 underline underline-offset-2">
-              CSR
-            </span>
-            <Link
-              href="/pokemon-ssr"
-              className="text-gray-400 hover:text-gray-700 transition-colors"
-            >
+    <div className="min-h-screen bg-gray-50">
+      <header className="bg-red-600 shadow-md sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <svg viewBox="0 0 100 100" className="w-9 h-9 shrink-0" aria-hidden="true">
+              <circle cx="50" cy="50" r="48" fill="white" stroke="#1f2937" strokeWidth="4" />
+              <path d="M2 50 h96" stroke="#1f2937" strokeWidth="4" />
+              <circle cx="50" cy="50" r="14" fill="white" stroke="#1f2937" strokeWidth="4" />
+              <path d="M2 50 Q50 2 98 50" fill="#e11d48" />
+              <circle cx="50" cy="50" r="8" fill="white" stroke="#1f2937" strokeWidth="4" />
+            </svg>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+              Pokédex
+            </h1>
+          </div>
+          <nav className="flex gap-4 text-sm font-semibold">
+            <span className="text-white underline underline-offset-2">CSR</span>
+            <Link href="/pokemon-ssr" className="text-red-200 hover:text-white transition-colors">
               SSR
             </Link>
           </nav>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Count */}
-        <p className="text-sm text-gray-600 mb-4">
-          Total count:{' '}
-          <span className="font-semibold">{loading ? '...' : total.toLocaleString()}</span>
-          {rawTypes.length > 0 && (
-            <span className="ml-2 text-gray-400">
-              (filtered by {rawTypes.join(' + ')})
-            </span>
-          )}
-        </p>
-
-        {/* Type filter */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="relative mb-6">
           <TypeAutocomplete
             allTypes={allTypes}
-            selectedTypes={rawTypes}
+            selectedTypes={selectedTypes}
             onChange={handleTypesChange}
           />
         </div>
 
-        {/* Grid */}
-        {loading ? (
-          <PokemonListSkeleton />
-        ) : (
-          <PokemonListGrid entries={entries} />
-        )}
+        <p className="text-sm text-gray-400 mb-4">
+          {loading ? (
+            <span className="inline-block w-24 h-4 bg-gray-200 rounded animate-pulse" />
+          ) : (
+            <>
+              {total.toLocaleString()} Pokémon
+              {selectedTypes.length > 0 && (
+                <span className="ml-1">
+                  matching <strong className="text-gray-600">{selectedTypes.join(' + ')}</strong>
+                </span>
+              )}
+            </>
+          )}
+        </p>
 
-        {/* Pagination */}
+        {loading ? <PokemonGridSkeleton /> : <PokemonGrid pokemon={pokemon} />}
+
         {!loading && (
           <Pagination currentPage={currentPage} totalPages={totalPages} basePath="/pokemon" />
         )}
       </main>
+
+      <footer className="text-center py-6 text-xs text-gray-400">
+        Data from{' '}
+        <a href="https://pokeapi.co" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600">
+          PokéAPI
+        </a>
+      </footer>
     </div>
   )
 }
