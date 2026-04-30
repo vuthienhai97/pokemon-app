@@ -8,11 +8,8 @@ interface PokemonCardProps {
 }
 
 export default function PokemonCard({ pokemon, animated = false }: PokemonCardProps) {
-  const animatedUrl = pokemon.sprites.versions['generation-v']['black-white'].animated.front_default
+  const showdownUrl = pokemon.sprites.other.showdown.front_default
   const staticUrl = pokemon.sprites.other['official-artwork'].front_default
-
-  // Use animated GIF when requested and available, fall back to official artwork
-  const imageUrl = animated && animatedUrl ? animatedUrl : staticUrl
   const paddedId = String(pokemon.id).padStart(3, '0')
 
   return (
@@ -22,26 +19,23 @@ export default function PokemonCard({ pokemon, animated = false }: PokemonCardPr
           #{paddedId}
         </span>
 
-        {imageUrl ? (
-          animated && animatedUrl ? (
-            // Use <img> for animated GIFs — next/image strips animation
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={animatedUrl}
-              alt={pokemon.name}
-              width={96}
-              height={96}
-              className="object-contain group-hover:scale-110 transition-transform duration-300 drop-shadow-md [image-rendering:pixelated]"
-            />
-          ) : (
-            <Image
-              src={staticUrl!}
-              alt={pokemon.name}
-              width={110}
-              height={110}
-              className="object-contain group-hover:scale-110 transition-transform duration-300 drop-shadow-md"
-            />
-          )
+        {animated && showdownUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={showdownUrl}
+            alt={pokemon.name}
+            width={120}
+            height={120}
+            className="object-contain group-hover:scale-110 transition-transform duration-300 drop-shadow-md"
+          />
+        ) : staticUrl ? (
+          <Image
+            src={staticUrl}
+            alt={pokemon.name}
+            width={110}
+            height={110}
+            className="object-contain group-hover:scale-110 transition-transform duration-300 drop-shadow-md"
+          />
         ) : (
           <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
             <span className="text-4xl text-gray-400">?</span>

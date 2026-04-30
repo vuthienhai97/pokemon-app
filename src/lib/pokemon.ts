@@ -18,6 +18,7 @@ export interface Pokemon {
   sprites: {
     other: {
       'official-artwork': { front_default: string | null }
+      showdown: { front_default: string | null }
     }
     versions: {
       'generation-v': {
